@@ -3,89 +3,28 @@ const ytdl = require('ytdl-core');
 const app = express()
 const ytsr = require('ytsr');
 const request = require('request');
-const port = process.env.PORT || 4000
+const port = process.env.PORT || 5000;
+const mongoose = require('mongoose');
+const ObjectId = mongoose.Types.ObjectId;
+
+
+const song = require("./models/song");
+
+
+const dbURI = process.env.URI;
+mongoose.connect(dbURI, { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex:true })
+  .then((result) => app.listen(5000))
+  .catch((err) => console.log(err));
 
 app.get('/', async(req, res) => {
-  res.send("Hello World!");
-})
-
-
-app.get('/music', async(req, res) => {
-  try
-  {
-    if (req.query.link.includes('watch'))
-    {
-      let videoID = req.query.link;
-      let info = await ytdl.getInfo(videoID);
-      let audioFormats = ytdl.filterFormats(info.formats, 'audioonly');
-			console.log(audioFormats[0].url);
-			let remoteURL = await audioFormats[0].url;
-			const data = { message:  remoteURL};
-  const range = req.headers.range;
-
-  // Make a request to the remote URL with the Range header
-  const options = {
-    url: remoteURL,
-    headers: {
-      Range: range || 'bytes=0-', // If no Range header is provided, serve the entire file
-    },
-  };
-
-  request(options)
-    .on('response', (remoteResponse) => {
-      if (remoteResponse.statusCode === 200) {
-        // Full file response
-        res.writeHead(200, {
-          'Content-Length': remoteResponse.headers['content-length'],
-          'Content-Type': 'audio/mpeg', // Set the appropriate content type for your file
-        });
-      } else if (remoteResponse.statusCode === 206) {
-        // Partial content response
-        res.writeHead(206, {
-          'Content-Range': remoteResponse.headers['content-range'],
-          'Accept-Ranges': 'bytes',
-          'Content-Length': remoteResponse.headers['content-length'],
-          'Content-Type': 'audio/mpeg', // Set the appropriate content type for your file
-        });
+      try {
+  //        const id = '65c3598af0dafac3898d6d26';
+          // Find all documents matching the provided ObjectId
+          const formData = await song.find({ _id: new ObjectId('65d5e6c4cebf5676635ca414') });
+          
+          res.json(formData);
+      } catch (error) {
+          console.error('Error fetching form data:', error);
+          res.status(500).send('Error fetching form data.');
       }
-
-      remoteResponse.pipe(res);
-    })
-    .on('error', (error) => {
-      console.error('Error:', error);
-      res.writeHead(500);
-      res.end('Internal Server Error');
-    });
-		}
-		else
-		{
-			res.send('boom')
-		}
-	}catch(error)
-	{
-		console.log(error)
-	}
-})
-
-app.get('/search', async (req, res) =>
-{
-	let string = req.query.string;
-	const searchTerm = req.query.string;
-	try {
-    const filters = await ytsr.getFilters(searchTerm);
-    const filter = filters.get('Type').get('Video');
-    const options = {
-      limit: 10,
-      type: 'audio', // This filters results to audio content
-    };
-
-    const searchResults = await ytsr(filter.url, options);
-    res.end(JSON.stringify(searchResults.items));
-  } catch (error) {
-    console.error('Error searching YouTube:', error);
-  }
 });
-
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
-})
