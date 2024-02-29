@@ -3,7 +3,7 @@ const asianController = require('./controller');
 
 const router = Router();
 
-router.get('/asian/home', asianController.homepage_get);
+router.get('/asian', asianController.homepage_get);
 
 router.get('/asian/search', asianController.search);
 
