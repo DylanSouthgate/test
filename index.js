@@ -15,7 +15,7 @@ const cookieParser = require('cookie-parser');
 const { requireAuth, checkUser } = require('./auth/authMiddleware');
 
 // Serve static files from the 'dist' directory
-//app.use(express.static(path.join(__dirname, 'dist/test/browser')));
+app.use(express.static(path.join(__dirname, 'dist/test/browser')));
 app.use(cors({
   origin: '', // or your specific domain whitelist
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
@@ -50,6 +50,6 @@ mongoose.connect(dbURI, { useNewUrlParser: true, useUnifiedTopology: true, useCr
   .catch((err) => console.log(err));
 
 app.get('/', async(req, res) => {
-//  res.sendFile(path.join(__dirname, 'dist/test/browser/index.html'));
-  res.sendFile(path.join(__dirname, './index.html'));
+  res.sendFile(path.join(__dirname, 'dist/test/browser/index.html'));
+//  res.sendFile(path.join(__dirname, './index.html'));
 });
