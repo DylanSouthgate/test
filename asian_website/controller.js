@@ -1,5 +1,6 @@
 const axios = require('axios');
 const cheerio = require('cheerio');
+//process.env.ASIAN
 // controller actions
 module.exports.homepage_get = async (req, res) => {
     try {
@@ -24,7 +25,8 @@ module.exports.homepage_get = async (req, res) => {
 module.exports.search = async (req, res) => {
     try {
         const query = req.query.q;
-        const response = await axios.get(`https://www.watchasian.sk/search?keyword=${query}&type=movies`, {
+        const page = req.query.page;
+        const response = await axios.get(`https://www.watchasian.sk/search?keyword=${query}&type=movies&page=${page}`, {
             headers: {
                 accept: "application/json, text/javascript, */*; q=0.01"
             }
@@ -34,13 +36,21 @@ module.exports.search = async (req, res) => {
         // Extract search data
         const searchData = $('.list-episode-item > li').map((i, el) => {
             const $el = $(el);
-            const title = $el.find('a').attr('title');
+            const title = $el.find('a > h3').text();
             const href = $el.find('a').attr('href');
             const image = $el.find('a img').attr('data-original');
             return { href, title, image };
         }).get();
 
-        res.send(searchData);
+        const pagination = $('.pagination > li').map((i, el) => {
+            const $el = $(el);
+            const number = $el.find('a').text();
+            return { number };
+        }).get();
+
+        console.log(pagination);
+
+        res.send({searchData,pagination});
     } catch (error) {
         console.error(error);
         res.status(500).send({ error: 'An error occurred' });
@@ -54,10 +64,12 @@ module.exports.genre = async (req, res) => {
         let link = '';
 
         if (genre === "popular") {
-            link = 'https://www.watchasian.sk/most-popular-drama';
+            link = 'https://www.watchasian.sk/most-popular-drama?page=' + req.query.page;
         } else {
             link = `https://www.watchasian.sk/genre/${genre}.html`;
         }
+
+        console.log(link);
 
         const response = await axios.get(link);
         const $ = cheerio.load(response.data);
@@ -71,7 +83,14 @@ module.exports.genre = async (req, res) => {
             return { href, title, image };
         }).get();
 
-        res.send(searchData);
+        const pagination = $('.pagination > li').map((i, el) => {
+            const $el = $(el);
+            const number = $el.find('a').text();
+            return { number };
+        }).get();
+
+
+        res.send({searchData,pagination});
     } catch (error) {
         console.error(error);
         res.status(500).send({ error: 'An error occurred' });
