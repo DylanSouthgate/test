@@ -17,7 +17,7 @@ const { requireAuth, checkUser } = require('./auth/authMiddleware');
 // Serve static files from the 'dist' directory
 app.use(express.static(path.join(__dirname, 'dist/test/browser')));
 app.use(cors({
-  origin: '', // or your specific domain whitelist
+  origin: 'http://localhost:4200', // or your specific domain whitelist
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'], // Allow Authorization header
 }));

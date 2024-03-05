@@ -19,12 +19,6 @@ router.post('/music/playlistsong', DatabaseController.playlistsong);
 
 router.post('/music/createplaylist', DatabaseController.createplaylist);
 
-router.post('/music/createwatchlist', DatabaseController.createWatchlist);
-
-router.get('/music/asianPlaylist', DatabaseController.asianPlaylist);
-
-router.get('/music/asianPlaylistDrama', DatabaseController.asianPlaylistDrama);
-
-router.post('/music/savetowatchlist', DatabaseController.save_to_watchlist);
+router.get('/music/DeleteAsianPlaylist', DatabaseController.DeleteAsianPlaylist);
 
 module.exports = router;

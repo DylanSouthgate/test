@@ -69,6 +69,7 @@ module.exports.signup_post = async (req, res) => {
 }
 
 module.exports.login_post = async (req, res) => {
+
   const { username, password } = req.body;
 
   console.log(req.body)
@@ -80,16 +81,20 @@ module.exports.login_post = async (req, res) => {
     //res.cookie('jwt', token, { httpOnly: true, maxAge: maxAge * 1000 });
     //res.status(200).json({ user: user._id });
 
-    const user = await User.login(username, password);
-    const token = createToken(user._id);
+    const account = await User.login(username, password);
+    const token = createToken(account._id);
 
     res.cookie('jwt', token, { httpOnly: true, maxAge: maxAge * 1000 });
 
     console.log(token);
 
+
+
     let boom = {
       "token" : token,
-      "id" : user._id
+      "id" : account._id,
+      "email" : account.email,
+      "username" : ""
     }
 
     console.log(boom);

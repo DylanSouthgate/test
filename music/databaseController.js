@@ -1,8 +1,6 @@
 const Playlist = require('../models/Playlist');
 const Song = require('../models/song');
 const Playlist_Song = require('../models/Playlist_Song');
-const watchlist = require('../models/asian_watchlist');
-const watchlist_playlist = require('../models/asian_watchlist_playlist');
 
 module.exports.playlist = async(req, res) => {
     let userid = req.query.id;
@@ -116,37 +114,17 @@ module.exports.createplaylist = async(req, res) => {
     }
 }
 
-module.exports.createWatchlist = async(req, res) => {
-    console.log("createit")
-    console.log(req.body);
-
-    const existingDoc = await watchlist.findOne({name : req.body.name,"userId" : req.body.id});
-    
-
-    if (!existingDoc) {
-        let data = {
-            name : req.body.name,
-            userId : req.body.id
-        }
-        const newDoc = new watchlist(data);
-        await newDoc.save();
-//        res.send(newDoc);
-        res.status(200).send({message: "Inserted Playlist"});
-    } else {
-        console.log("Duplicate document found. Not saving.");
-        console.log(existingDoc);
-        res.status(200).send({message: "Duplicate document found. Not saving."});
-    }
-}
-
-module.exports.asianPlaylist = async(req, res) => {
-    let userid = req.query.id;
-    console.log("dejkbdekjwbjew");
+module.exports.DeleteAsianPlaylist = async(req, res) => {
+    let playlistid = req.query.id;
     try{
-        let user = await watchlist.find({
-            "userId" : userid
+        let playlist = await watchlist.find({
+            "_id" : playlistid
             });
-        res.send(user);
+        let playlistTitles = await watchlist_playlist.find({
+            "playlistId" : playlistid
+        });
+        let boom = await watchlist_playlist.deleteMany({"playlistId" : playlistid});
+        res.send(boom);
     }
     catch (error)
     {
@@ -154,44 +132,3 @@ module.exports.asianPlaylist = async(req, res) => {
     }
 }
 
-module.exports.asianPlaylistDrama = async(req, res) => {
-    console.log(req.query)
-
-    try{
-        let user = await watchlist_playlist.find({
-            "playlistId" : req.query.id
-            });
-        res.send(user);
-        console.log(user)
-    }
-    catch (error)
-    {
-        console.error(error);
-    }
-}
-
-module.exports.save_to_watchlist = async(req, res) => {
-    playlist_id = req.body.id;
-    link = req.body.link;
-
-    const existingDoc = await watchlist_playlist.findOne({
-        playlistId: playlist_id,
-	    asianShow: link
-    });
-    if (!existingDoc) {
-        let data = {
-            playlistId: playlist_id,
-            asianShow: link,
-            image : req.body.image,
-            name : req.body.name
-        }
-        const newDoc = new watchlist_playlist(data);
-        await newDoc.save();
-        res.status(200).send({message: "Inserted Asian Show"});
-        console.log(newDoc);
-    } else {
-        console.log("Duplicate document found. Not saving.");
-        console.log(existingDoc);
-        res.status(200).send({message: "Duplicate document found. Not saving."});
-    }
-}
